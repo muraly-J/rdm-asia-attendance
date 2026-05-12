@@ -1,0 +1,8 @@
+in your terminal (ctrl+`)(ctrl key and the key below the escape key)
+--> type "python -m venv venv" to make a virtual environment
+--> then "venv/Scripts/Activate" to activate the virtual environment
+--> then "pip install -r requirements.txt" to install the required libraries to run the python script
+
+then download the .xlsx file (in other words the spreadsheet) that starts with "timesheet_detail"
+--> this will be our input
+
