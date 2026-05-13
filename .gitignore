@@ -1,0 +1,9 @@
+# Data files — local only
+*.xlsx
+*.csv
+
+# Python
+venv/
+__pycache__/
+*.pyc
+.DS_Store

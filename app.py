@@ -24,36 +24,21 @@ def clean_name(name):
     if pd.isna(name): return ""
     return re.sub(r'[^a-zA-Z0-9]', '', str(name).upper())
 
-def add_time_column(df):
-    """
-    Automatically add the time extraction column after 'Date Time'
-    Mimics Excel formula: =TIMEVALUE(RIGHT(G2,5))
-    """
-    # Extract the last 5 characters (HH:MM) from Date Time and convert to time
-    df['TimeExtracted'] = df['Date Time'].apply(lambda x: 
-        pd.to_datetime(str(x)[-5:], format='%H:%M').time() if pd.notna(x) and len(str(x)) >= 5 else None
-    )
-    return df
-
 def process_data(ts_file, att_file, start_date):
     # Date Setup
     end_date = start_date + timedelta(days=6)
     date_range = [(start_date + timedelta(days=i)).date() for i in range(7)]
     dynamic_sheet_name = f"{start_date.day} {start_date.strftime('%b')} - {end_date.day} {end_date.strftime('%b')}"
 
-    # Load Files
+    # Load Files — new CSV has 6 metadata rows before the actual header
     if ts_file.name.endswith('.csv'):
-        df = pd.read_csv(ts_file)
+        df = pd.read_csv(ts_file, skiprows=6)
     else:
         df = pd.read_excel(ts_file)
-    
-    # NEW: Automatically add the time column if it doesn't exist
-    if 'TimeExtracted' not in df.columns and 'Unnamed: 7' not in df.columns:
-        df = add_time_column(df)
-        st.info("✓ Time column automatically added to timesheet data")
-    elif 'Unnamed: 7' in df.columns:
-        # File already has the time column
-        df['TimeExtracted'] = df['Unnamed: 7']
+
+    # Normalize column name: new format uses "Date Time (Time Zone)"
+    if 'Date Time (Time Zone)' in df.columns and 'Date Time' not in df.columns:
+        df.rename(columns={'Date Time (Time Zone)': 'Date Time'}, inplace=True)
     
     # 1. Precise DateTime Parsing
     if 'Date Time' in df.columns:
